@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Поруч</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060A;
+  --s1: #0D0D14;
+  --card: #10101A;
+  --border: rgba(255,255,255,0.07);
+  --white: #EEEAF5;
+  --muted: rgba(238,234,245,0.4);
+  --dim: rgba(238,234,245,0.15);
+
+  /* male = violet-warm */
+  --a: #C4A8FF;
+  --a2: rgba(196,168,255,0.1);
+  --a3: rgba(196,168,255,0.05);
+  --a4: rgba(196,168,255,0.18);
+  --green: #52C97A;
+}
+body.f {
+  --a: #FF9FC4;
+  --a2: rgba(255,159,196,0.1);
+  --a3: rgba(255,159,196,0.05);
+  --a4: rgba(255,159,196,0.18);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--white);font-family:'Manrope',sans-serif;overflow:hidden}
+
+/* grain */
+body::after{content:'';position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:.025;
+background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23f)'/%3E%3C/svg%3E")}
+
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .65s cubic-bezier(.4,0,.2,1)}
+.screen.on{opacity:1;pointer-events:all}
+
+/* ══════ S1: WELCOME ══════ */
+#s1{padding:24px 22px;text-align:center}
+.s1bg{position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(ellipse 90% 50% at 50% 100%,var(--a3) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 30% at 90% 10%,var(--a3) 0%,transparent 55%);
+  transition:background .6s}
+
+/* Верхня плашка — місто + онлайн */
+.topbar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 22px;
+}
+.location-badge{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;letter-spacing:.06em;color:var(--muted);
+}
+.loc-dot{width:6px;height:6px;border-radius:50%;background:var(--a);animation:blink 2s infinite;transition:background .5s}
+#loc-city{color:var(--white);font-weight:500}
+
+.online-badge{
+  font-size:11px;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.on-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+
+/* Основний блок */
+.s1-logo{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:52px;animation:up .5s both}
+
+.s1-main{margin-bottom:28px}
+.s1-sup{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:16px;animation:up .5s .07s both;transition:color .5s}
+.s1-h{
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(32px,9vw,56px);
+  font-weight:300;line-height:1.05;letter-spacing:-.02em;
+  color:var(--white);margin-bottom:0;
+  animation:up .5s .12s both;
+}
+.s1-h b{font-weight:500;color:var(--a);transition:color .5s}
+.s1-city-row{
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(32px,9vw,56px);
+  font-weight:300;line-height:1.05;letter-spacing:-.02em;
+  color:var(--white);margin-bottom:24px;
+  animation:up .5s .17s both;
+}
+.s1-city-row u{text-decoration:none;border-bottom:2px solid var(--a);padding-bottom:2px;transition:border-color .5s}
+
+.s1-sub{font-size:14px;font-weight:300;color:var(--muted);line-height:1.65;max-width:300px;margin:0 auto 44px;animation:up .5s .22s both;min-height:46px}
+
+/* nearby chips */
+.nearby-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:36px;animation:up .5s .27s both;min-height:28px}
+.nearby-chip{
+  font-size:10px;letter-spacing:.06em;color:var(--muted);
+  border:1px solid rgba(255,255,255,.1);padding:4px 10px;
+  display:flex;align-items:center;gap:4px;
+}
+.chip-dist{font-size:9px;color:var(--dim)}
+
+.btn-go{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--a);color:#08080F;
+  font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:17px 40px;border:none;cursor:pointer;
+  transition:background .5s,transform .25s,box-shadow .25s;
+  animation:up .5s .3s both;
+}
+.btn-go:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.btn-go::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);transform:translateX(-100%)}
+.btn-go:hover::after{animation:shine .5s forwards}
+
+.s1-note{position:absolute;bottom:22px;font-size:10px;color:var(--dim);letter-spacing:.04em;animation:up .5s .4s both}
+
+/* ══════ S2: LOADING ══════ */
+#s2{padding:32px 24px;text-align:center}
+.s2bg{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 60% 60% at 50% 50%,var(--a3) 0%,transparent 65%)}
+
+/* Пульс-коло */
+.pulse-wrap{position:relative;width:180px;height:180px;margin:0 auto 40px}
+.pulse-ring{
+  position:absolute;border-radius:50%;
+  border:1px solid var(--a);top:50%;left:50%;transform:translate(-50%,-50%);
+  opacity:0;transition:border-color .5s;
+}
+.pr1{width:50px;height:50px;animation:expand 2.5s .0s infinite}
+.pr2{width:50px;height:50px;animation:expand 2.5s .6s infinite}
+.pr3{width:50px;height:50px;animation:expand 2.5s 1.2s infinite}
+.pulse-core{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:14px;height:14px;border-radius:50%;
+  background:var(--a);box-shadow:0 0 20px var(--a);
+  animation:throb 1.5s infinite;transition:background .5s,box-shadow .5s;
+}
+
+.steps{display:flex;flex-direction:column;gap:11px;max-width:270px;margin:0 auto 22px;text-align:left}
+.step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);opacity:0;transition:opacity .3s,color .3s}
+.step.on{opacity:1;color:var(--a)}
+.step.ok{opacity:1;color:var(--white)}
+.step-ic{width:14px;height:14px;flex-shrink:0;opacity:.7}
+
+.ai-note{font-size:10px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* ══════ S3: PROFILES ══════ */
+#s3{justify-content:flex-start;overflow-y:auto;padding-bottom:44px;-webkit-overflow-scrolling:touch}
+#s3::-webkit-scrollbar{display:none}
+
+/* Hero */
+.hero{
+  width:100%;padding:28px 20px 18px;text-align:center;
+  background:linear-gradient(180deg,var(--a2) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);margin-bottom:14px;
+  transition:background .5s;
+}
+.hero-label{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--a);margin-bottom:12px;transition:color .5s;
+}
+.hl-dot{width:4px;height:4px;border-radius:50%;background:var(--a);animation:blink 2s infinite;transition:background .5s}
+.hero-h{
+  font-family:'Unbounded',sans-serif;
+  font-size:clamp(20px,6vw,30px);font-weight:300;
+  line-height:1.2;color:var(--white);margin-bottom:8px;
+}
+.hero-h em{font-style:normal;color:var(--a);transition:color .5s}
+.hero-sub{font-size:12px;color:var(--muted);line-height:1.55;max-width:290px;margin:0 auto}
+
+/* Activity bar — скільки активних звідки */
+.activity-bar{
+  display:flex;gap:0;border:1px solid var(--border);
+  margin:0 16px 14px;overflow:hidden;
+}
+.act-item{
+  flex:1;padding:10px 8px;text-align:center;
+  border-right:1px solid var(--border);
+  font-size:10px;line-height:1.4;
+}
+.act-item:last-child{border-right:none}
+.act-num{
+  display:block;font-family:'Unbounded',sans-serif;
+  font-size:16px;font-weight:400;color:var(--a);
+  margin-bottom:3px;transition:color .5s;
+}
+.act-place{color:var(--muted);font-size:9px;letter-spacing:.04em}
+
+/* Cards */
+.cards{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.pcard{
+  background:var(--card);border:1px solid var(--border);
+  padding:16px;display:flex;gap:12px;
+  opacity:0;transform:translateY(12px);
+  animation:cdin .45s cubic-bezier(.4,0,.2,1) forwards;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:border-color .2s;
+}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--a),transparent);opacity:0;transition:opacity .2s,background .5s}
+.pcard:hover{border-color:rgba(255,255,255,.13)}
+.pcard:hover::before{opacity:.35}
+.pcard:nth-child(1){animation-delay:.04s}
+.pcard:nth-child(2){animation-delay:.12s}
+.pcard:nth-child(3){animation-delay:.2s}
+
+.ava{
+  width:58px;height:58px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Unbounded',sans-serif;font-size:17px;font-weight:300;
+  color:var(--a);position:relative;transition:color .5s,border-color .5s;
+}
+.af1{background:linear-gradient(135deg,#14101C,#1C1228)}
+.af2{background:linear-gradient(135deg,#0E1420,#101C28)}
+.af3{background:linear-gradient(135deg,#14101C,#201428)}
+.am1{background:linear-gradient(135deg,#101C18,#142018)}
+.am2{background:linear-gradient(135deg,#10141C,#14181C)}
+.am3{background:linear-gradient(135deg,#1A1010,#201414)}
+.ava-on{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--card)}
+
+.pi{flex:1;min-width:0}
+.pn{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:300;color:var(--white);display:flex;align-items:baseline;gap:5px;margin-bottom:3px}
+.pa{font-family:'Manrope',sans-serif;font-size:12px;color:var(--muted);font-weight:300}
+.pl{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--a);margin-bottom:7px;transition:color .5s;line-height:1.3}
+.pl-pin{flex-shrink:0;width:8px;height:10px}
+.pb{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+
+.btn-w{
+  display:inline-flex;align-items:center;gap:6px;
+  border:1px solid rgba(255,255,255,.1);background:transparent;
+  color:var(--white);font-family:'Manrope',sans-serif;
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:8px 14px;cursor:pointer;transition:all .2s;font-weight:500;
+}
+.btn-w:hover{background:var(--a);color:#08080F;border-color:var(--a)}
+
+/* CTA */
+.cta-wrap{padding:16px 16px 0}
+.cta-box{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);padding:18px 16px;text-align:center}
+.cta-t{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:14px;min-height:42px}
+.sk{height:10px;border-radius:2px;margin-bottom:5px;
+  background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.04) 75%);
+  background-size:200% 100%;animation:wave 1.5s infinite}
+.sk2{width:65%}
+.btn-reg{
+  width:100%;background:var(--a);color:#08080F;border:none;
+  padding:16px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+  transition:background .5s,transform .2s,box-shadow .2s;
+}
+.btn-reg:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+
+.fine{text-align:center;padding:14px 20px 0;font-size:10px;color:var(--dim);line-height:1.6}
+
+/* ══════ KEYFRAMES ══════ */
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cdin{to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes throb{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.25)}}
+@keyframes expand{0%{width:50px;height:50px;opacity:.7}100%{width:180px;height:180px;opacity:0}}
+@keyframes shine{to{transform:translateX(100%)}}
+@keyframes wave{0%{background-position:200% 0}100%{background-position:-200% 0}}
+</style>
+</head>
+<body>
+
+<!-- ═══ S1: WELCOME ═══ -->
+<div class="screen on" id="s1">
+  <div class="s1bg"></div>
+
+  <div class="topbar">
+    <div class="location-badge">
+      <div class="loc-dot"></div>
+      <span id="loc-city">Визначаю...</span>
+    </div>
+    <div class="online-badge">
+      <div class="on-dot"></div>
+      <span id="online-n">—</span> онлайн
+    </div>
+  </div>
+
+  <div class="s1-logo">Поруч</div>
+
+  <div class="s1-main">
+    <div class="s1-sup" id="s1-sup">Знайомства поруч з тобою</div>
+    <div class="s1-h">Знайди <b id="em-seek">когось</b></div>
+    <div class="s1-city-row">в <u id="city-u">...</u></div>
+  </div>
+
+  <p class="s1-sub" id="s1-sub">Завантажую дані про твій регіон...</p>
+
+  <!-- Чіпи сусідніх міст/сіл — заповнюються після геолокації -->
+  <div class="nearby-row" id="nearby-row"></div>
+
+  <button class="btn-go" onclick="startFlow()">
+    <span id="btn-txt">Показати кого-то поруч</span>
+    <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+      <path d="M1 5h12M9 1.5L13 5 9 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="s1-note">🔒 Геодані не зберігаються і не передаються третім особам</div>
+</div>
+
+<!-- ═══ S2: LOADING ═══ -->
+<div class="screen" id="s2">
+  <div class="s2bg"></div>
+  <div class="pulse-wrap">
+    <div class="pulse-ring pr1"></div>
+    <div class="pulse-ring pr2"></div>
+    <div class="pulse-ring pr3"></div>
+    <div class="pulse-core"></div>
+  </div>
+  <div class="steps" id="steps">
+    <div class="step" id="st1">
+      <svg class="step-ic" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.1"/><path d="M7 .5C4.015.5 1.5 3.015 1.5 6c0 3.85 5.5 7.5 5.5 7.5S12.5 9.85 12.5 6C12.5 3.015 9.985.5 7 .5z" stroke="currentColor" stroke-width="1.1"/></svg>
+      Визначаю локацію
+    </div>
+    <div class="step" id="st2">
+      <svg class="step-ic" viewBox="0 0 14 14" fill="none"><rect x="1" y="3.5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M4.5 3.5V2.5a2.5 2.5 0 015 0v1" stroke="currentColor" stroke-width="1.1"/></svg>
+      Шукаю місця та сусідів
+    </div>
+    <div class="step" id="st3">
+      <svg class="step-ic" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.4 2.8 3.1.6-2.2 2.2.5 3.2L7 9l-2.8 1.3.5-3.2L2.5 4.9l3.1-.6z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+      ШІ аналізує та формує профілі
+    </div>
+    <div class="step" id="st4">
+      <svg class="step-ic" viewBox="0 0 14 14" fill="none"><path d="M1.5 7l4 4 7-6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Готово
+    </div>
+  </div>
+  <div class="ai-note">Аналіз за допомогою DeepSeek AI</div>
+</div>
+
+<!-- ═══ S3: PROFILES ═══ -->
+<div class="screen" id="s3">
+  <div class="hero">
+    <div class="hero-label"><div class="hl-dot"></div><span id="h-tag">Поруч з тобою</span></div>
+    <h2 class="hero-h" id="h-title"><em>Активні зараз</em></h2>
+    <p class="hero-sub" id="h-sub"></p>
+  </div>
+
+  <!-- Activity bar — 3 місця з кількістю активних -->
+  <div class="activity-bar" id="act-bar">
+    <div class="act-item"><span class="act-num" id="act-n1">—</span><span class="act-place" id="act-p1">...</span></div>
+    <div class="act-item"><span class="act-num" id="act-n2">—</span><span class="act-place" id="act-p2">...</span></div>
+    <div class="act-item"><span class="act-num" id="act-n3">—</span><span class="act-place" id="act-p3">...</span></div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="cta-wrap">
+    <div class="cta-box">
+      <div class="cta-t" id="cta-t"><div class="sk"></div><div class="sk sk2"></div></div>
+      <button class="btn-reg" onclick="goReg()">Зареєструватись безкоштовно</button>
+    </div>
+  </div>
+  <div class="fine">Всі профілі — реальні користувачі з твого регіону.<br>Реєстрація займає 30 секунд.</div>
+</div>
+
+<script>
+// ═══════════════════════════
+//  CONFIG
+// ═══════════════════════════
+const DS_KEY  = 'sk-aed04abba3bf454386b4ea541f344949';
+const REG_URL = ''; // ← твоє посилання на реєстрацію
+
+// ═══════════════════════════
+//  ГЕНДЕР з UTM
+// ═══════════════════════════
+const qp     = new URLSearchParams(location.search);
+const gRaw   = (qp.get('g') || qp.get('gender') || qp.get('sex') || 'm').toLowerCase();
+const isMale = !['f','female','woman','0'].includes(gRaw);
+if (!isMale) document.body.classList.add('f');
+
+// Профілі по гендеру
+const GC = {
+  m: {
+    seek: 'дівчину',
+    btn:  'Показати дівчат поруч',
+    sup:  'Дівчата з твого міста',
+    profiles: [
+      {i:'А', av:'af1', name:'Анастасія', age:24},
+      {i:'М', av:'af2', name:'Марина',    age:27},
+      {i:'В', av:'af3', name:'Вікторія',  age:23},
+    ],
+  },
+  f: {
+    seek: 'хлопця',
+    btn:  'Показати хлопців поруч',
+    sup:  'Хлопці з твого міста',
+    profiles: [
+      {i:'О', av:'am1', name:'Олексій',  age:27},
+      {i:'Д', av:'am2', name:'Дмитро',   age:29},
+      {i:'М', av:'am3', name:'Максим',   age:25},
+    ],
+  },
+};
+const gc = isMale ? GC.m : GC.f;
+
+// Застосовуємо одразу
+document.getElementById('em-seek').textContent = gc.seek;
+document.getElementById('btn-txt').textContent  = gc.btn;
+document.getElementById('s1-sup').textContent   = gc.sup;
+
+// ═══════════════════════════
+//  UTILS
+// ═══════════════════════════
+const rand  = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const pick  = a => a[Math.floor(Math.random()*a.length)];
+const pickN = (a,n) => [...a].sort(()=>Math.random()-.5).slice(0,n);
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const $ = id => document.getElementById(id);
+
+// ═══════════════════════════
+//  ЧАС
+// ═══════════════════════════
+const now  = new Date();
+const hr   = now.getHours();
+const dow  = now.getDay();
+const mins = String(now.getMinutes()).padStart(2,'0');
+const isWE = dow===0||dow===6;
+const dayUA = ['неділю','понеділок','вівторок','середу','четвер','п\'ятницю','суботу'][dow];
+const timeUA= hr>=5&&hr<12?'ранок':hr>=12&&hr<18?'день':hr>=18&&hr<23?'вечір':'ніч';
+const greet = hr>=5&&hr<12?'Доброго ранку':hr>=12&&hr<18?'Добрий день':hr>=18&&hr<23?'Добрий вечір':'Доброї ночі';
+const s3t   = hr>=5&&hr<12?'вранці':hr>=12&&hr<18?'вдень':hr>=18&&hr<23?'ввечері':'вночі';
+
+// ═══════════════════════════
+//  КОНТЕКСТ
+// ═══════════════════════════
+const isMob = /Mobi|Android/i.test(navigator.userAgent);
+const isIOS = /iPhone|iPad/i.test(navigator.userAgent);
+const ctx = {
+  city:'Київ', country:'UA', region:'',
+  lat:50.45, lon:30.52,
+  population: 0,       // 0 = не відомо, DeepSeek вирішить
+  cityType: '',        // 'big' | 'medium' | 'small' | 'village' — вирішує DeepSeek
+  nearby: [],          // сусідні нас. пункти з відстанями
+  cafes:[], parks:[], districts:[], streets:[],
+  timeUA, greet, s3t, isWE, dayUA, hr, mins,
+  device: isMob?(isIOS?'iPhone':'Android'):'desktop',
+  gender: isMale?'чоловік':'жінка',
+  seek: gc.seek,
+};
+
+// ═══════════════════════════
+//  GEO: IP → координати
+// ═══════════════════════════
+async function fetchGeo() {
+  try {
+    const r = await fetch('https://ip-api.com/json/?fields=status,city,regionName,country,countryCode,lat,lon');
+    const d = await r.json();
+    if (d.status==='success') {
+      ctx.city    = d.city || ctx.city;
+      ctx.region  = d.regionName || '';
+      ctx.country = d.countryCode || 'UA';
+      ctx.lat = d.lat; ctx.lon = d.lon;
+    }
+  } catch(e){}
+  $('city-u').textContent    = ctx.city;
+  $('loc-city').textContent  = ctx.city;
+  $('online-n').textContent  = rand(140,380);
+  $('s1-sub').textContent    = `${greet}! Шукаю ${gc.seek} поруч з тобою в ${ctx.city}...`;
+}
+
+// ═══════════════════════════
+//  OVERPASS: сусідні місця
+//  Завжди беремо радіус 40 км — DeepSeek сам вирішить що показувати
+// ═══════════════════════════
+async function fetchNearby() {
+  const q = `
+    [out:json][timeout:12];
+    (
+      node["place"~"city|town|village|hamlet"]["name"](around:40000,${ctx.lat},${ctx.lon});
+    );
+    out body 20;
+  `;
+  try {
+    const r = await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)});
+    const d = await r.json();
+    // Зберігаємо з типом місця
+    ctx.nearby = (d.elements||[])
+      .filter(e => e.tags?.name && e.tags.name !== ctx.city)
+      .map(e => {
+        const dist = Math.round(Math.sqrt(
+          Math.pow((e.lat-ctx.lat)*111,2) + Math.pow((e.lon-ctx.lon)*111,2)
+        ));
+        return {name: e.tags.name, type: e.tags.place, dist};
+      })
+      .sort((a,b)=>a.dist-b.dist)
+      .slice(0,12);
+  } catch(e){}
+}
+
+// ═══════════════════════════
+//  OVERPASS: POI міста
+// ═══════════════════════════
+async function fetchPOI() {
+  const R = 8000;
+  const q = `
+    [out:json][timeout:15];
+    (
+      node["amenity"~"cafe|restaurant|bar|pub"]["name"](around:${R},${ctx.lat},${ctx.lon});
+      node["leisure"~"park|garden"]["name"](around:${R},${ctx.lat},${ctx.lon});
+      way["leisure"~"park|garden"]["name"](around:${R},${ctx.lat},${ctx.lon});
+      node["place"~"suburb|quarter|neighbourhood"]["name"](around:${R},${ctx.lat},${ctx.lon});
+      way["highway"~"primary|secondary"]["name"](around:4000,${ctx.lat},${ctx.lon});
+    );
+    out body 80;
+  `;
+  try {
+    const r = await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q)});
+    const d = await r.json();
+    const ca=[],pa=[],di=[],st=[];
+    for (const el of (d.elements||[])) {
+      const nm = el.tags?.name; if(!nm||nm.length<2) continue;
+      const a=el.tags?.amenity,l=el.tags?.leisure,p=el.tags?.place,h=el.tags?.highway;
+      if(a&&['cafe','restaurant','bar','pub'].includes(a)) ca.push(nm);
+      else if(l&&['park','garden'].includes(l)) pa.push(nm);
+      else if(p) di.push(nm);
+      else if(h) st.push(nm);
+    }
+    ctx.cafes     = [...new Set(ca)].slice(0,20);
+    ctx.parks     = [...new Set(pa)].slice(0,15);
+    ctx.districts = [...new Set(di)].slice(0,15);
+    ctx.streets   = [...new Set(st)].slice(0,18);
+  } catch(e){}
+}
+
+// ═══════════════════════════
+//  ПОКАЗУЄМО ЧІПИ СУСІДІВ на S1
+//  Після fetchNearby — без DeepSeek, просто найближчі
+// ═══════════════════════════
+function renderNearbyChips() {
+  const row = $('nearby-row');
+  row.innerHTML = '';
+  const show = ctx.nearby.slice(0,5);
+  show.forEach(n => {
+    const chip = document.createElement('div');
+    chip.className = 'nearby-chip';
+    chip.innerHTML = `${n.name} <span class="chip-dist">${n.dist} км</span>`;
+    row.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════
+//  DEEPSEEK — ОДИН ЗАПИТ НА ВСЕ
+//
+//  DeepSeek отримує:
+//  1. Координати + назва міста
+//  2. Час, день, вихідний/будній
+//  3. Список сусідніх нас. пунктів з відстанями і типами
+//  4. POI: кафе, парки, райони, вулиці
+//  5. Пристрій і пол користувача
+//
+//  DeepSeek вирішує:
+//  — Це велике місто, середнє чи село?
+//  — Який контент показувати (вулиці+заклади vs сусіди)
+//  — Всі тексти сторінки
+// ═══════════════════════════
+async function callDeepSeek() {
+  const nearbyLines = ctx.nearby.slice(0,10).map(n=>`  - ${n.name} (${n.type}, ${n.dist} км)`).join('\n');
+  const poiLines = [
+    ctx.cafes.length     ? `Кафе/заклади: ${pickN(ctx.cafes,7).join(', ')}`      : '',
+    ctx.parks.length     ? `Парки/сквери: ${pickN(ctx.parks,5).join(', ')}`      : '',
+    ctx.districts.length ? `Райони: ${pickN(ctx.districts,6).join(', ')}`        : '',
+    ctx.streets.length   ? `Вулиці: ${pickN(ctx.streets,5).join(', ')}`          : '',
+  ].filter(Boolean).join('\n');
+
+  const profiles = gc.profiles;
+  const pGender  = isMale ? 'дівчата' : 'хлопці';
+
+  const sys = `Ти копірайтер для мобільного дейтингового лендінгу. Аудиторія — Україна.
+Пишеш живі, теплі, конкретні тексти українською мовою. Без кліше і загальних фраз.
+Використовуй реальні назви місць з даних. Стиль — як друг пише другу.
+Відповідай ТІЛЬКИ валідним JSON без markdown.`;
+
+  const usr = `Дані про користувача:
+- Місто/населений пункт: ${ctx.city}${ctx.region?', '+ctx.region:''}
+- Координати: ${ctx.lat}, ${ctx.lon}
+- Час: ${ctx.timeUA} (${ctx.hr}:${ctx.mins}), ${ctx.dayUA}${ctx.isWE?' (вихідний)':' (будній)'}
+- Пристрій: ${ctx.device}
+- Стать: ${ctx.gender} (шукає: ${ctx.seek})
+
+Сусідні населені пункти (в радіусі 40 км):
+${nearbyLines || '(немає даних)'}
+
+Місця в населеному пункті:
+${poiLines || '(немає даних)'}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+ЗАВДАННЯ:
+
+1) Визнач тип населеного пункту на основі наявних даних:
+   - "big"    — місто 50 000+ (Київ, Харків, Одеса, Дніпро, Запоріжжя, Львів, Вінниця, Херсон...)
+   - "medium" — місто 10 000–50 000 (райцентри, малі міста)  
+   - "small"  — містечко/смт до 10 000
+   - "village"— село/хутір
+
+2) Залежно від типу — вибери стратегію контенту:
+   - big/medium: акцент на райони, вулиці, заклади міста
+   - small/village: акцент на сусідні міста/села, відстані
+
+3) Згенеруй всі тексти:
+
+Профілі (${pGender}): ${profiles.map(p=>p.name+' '+p.age+'р').join(', ')}
+
+Поля:
+- city_type: "big"|"medium"|"small"|"village"
+- tagline: 1 речення — чому ЗАРАЗ і в ЦЬОМУ місці варто познайомитись з ${ctx.seek}. Конкретно.
+- hero_title: 3-5 слів, заголовок розділу профілів
+- hero_sub: 1 речення, де саме активні — з конкретними місцями
+- act_place_1/2/3: 3 назви місць для лічильника активності (райони/села/заклади)
+- act_num_1/2/3: числа активних у кожному місці (реалістично: 3-25)
+- bio_0: опис ${profiles[0].name} — 15-20 слів, КОНКРЕТНЕ місце з даних
+- bio_1: опис ${profiles[1].name} — інший характер, інше місце
+- bio_2: опис ${profiles[2].name} — третій стиль, ще одне місце
+- loc_0: де зараз ${profiles[0].name} (1-3 слова, конкретне місце)
+- loc_1: де зараз ${profiles[1].name}
+- loc_2: де зараз ${profiles[2].name}
+- nearby_chips: масив 4-5 об'єктів [{name,dist}] — найцікавіші сусідні місця для показу
+- cta: 2 речення — заклик зареєструватись з прив'язкою до міста і часу
+
+JSON:
+{
+  "city_type":"...",
+  "tagline":"...","hero_title":"...","hero_sub":"...",
+  "act_place_1":"...","act_num_1":0,
+  "act_place_2":"...","act_num_2":0,
+  "act_place_3":"...","act_num_3":0,
+  "bio_0":"...","bio_1":"...","bio_2":"...",
+  "loc_0":"...","loc_1":"...","loc_2":"...",
+  "nearby_chips":[{"name":"...","dist":0}],
+  "cta":"..."
+}`;
+
+  try {
+    const res = await fetch('https://api.deepseek.com/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${DS_KEY}`},
+      body: JSON.stringify({
+        model:'deepseek-chat', max_tokens:900, temperature:.8,
+        messages:[{role:'system',content:sys},{role:'user',content:usr}],
+      }),
+    });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const raw  = data?.choices?.[0]?.message?.content?.trim()||'';
+    const json = JSON.parse(raw.replace(/^```json\s*/i,'').replace(/\s*```$/,'').trim());
+    ctx.cityType = json.city_type || 'medium';
+    return json;
+  } catch(e) {
+    // ─── ФОЛБЕК ───
+    const isBig    = ctx.districts.length > 3 || ctx.streets.length > 3;
+    const cityType = isBig ? 'big' : ctx.nearby.length > 3 ? 'small' : 'medium';
+    ctx.cityType   = cityType;
+    const cafe  = pick(ctx.cafes)     || 'місцевій кав\'ярні';
+    const park  = pick(ctx.parks)     || 'міському парку';
+    const dist  = pick(ctx.districts) || ctx.city;
+    const str   = pick(ctx.streets)   || 'центральній вулиці';
+    const nb    = ctx.nearby.slice(0,3);
+    const p     = gc.profiles;
+    return {
+      city_type:   cityType,
+      tagline:     `${greet}! ${ctx.isWE?'Вихідні — ':''} у ${ctx.city} ${timeUA}ом — саме час познайомитись з ${gc.seek}.`,
+      hero_title:  `Активні ${s3t}`,
+      hero_sub:    isBig
+        ? `${pGender.charAt(0).toUpperCase()+pGender.slice(1)} з ${dist} та інших районів ${ctx.city}`
+        : `${pGender.charAt(0).toUpperCase()+pGender.slice(1)} з ${ctx.city}${nb.length?` та ${nb[0].name}`:''}`,
+      act_place_1: isBig ? (ctx.districts[0]||ctx.city) : ctx.city,
+      act_num_1:   rand(4,18),
+      act_place_2: isBig ? (ctx.districts[1]||str) : (nb[0]?.name||ctx.city),
+      act_num_2:   rand(3,12),
+      act_place_3: isBig ? (ctx.streets[0]||park) : (nb[1]?.name||park),
+      act_num_3:   rand(2,9),
+      bio_0: isBig
+        ? `Часто буваю в «${cafe}». Люблю, коли розмова затягується до закриття.`
+        : `З ${ctx.city}, іноді буваю в ${nb[0]?.name||'сусідньому місті'}. Шукаю когось свого.`,
+      bio_1: isBig
+        ? `Живу поруч з ${str}. Знаю всі тихі місця — покажу, якщо що.`
+        : `Люблю вечори в ${park||ctx.city}. Простий характер, щире серце.`,
+      bio_2: `Гуляю в ${park}. Фотограф, дивлюся на світ трохи інакше.`,
+      loc_0: isBig ? dist : ctx.city,
+      loc_1: isBig ? str  : (nb[0]?.name||ctx.city),
+      loc_2: park || ctx.city,
+      nearby_chips: nb.map(n=>({name:n.name,dist:n.dist})),
+      cta: `У ${ctx.city} та сусідніх місцях зараз онлайн більше ${rand(60,200)} людей. Зареєструйся за 30 секунд і відкрий всі профілі.`,
+    };
+  }
+}
+
+// ═══════════════════════════
+//  INIT
+// ═══════════════════════════
+async function init() {
+  await fetchGeo();
+  // POI і сусіди паралельно в фоні
+  Promise.all([fetchNearby(), fetchPOI()]).then(renderNearbyChips);
+}
+
+// ═══════════════════════════
+//  FLOW
+// ═══════════════════════════
+const st = id => {
+  const el=$(id); if(!el)return;
+  el.className='step on';
+  // через 400мс переходимо в ok якщо не виклично з-зовні
+};
+const stOk = id => { const el=$(id); if(el) el.className='step ok'; };
+
+async function startFlow() {
+  showS('s2');
+
+  st('st1'); await sleep(500); stOk('st1');
+
+  st('st2');
+  await Promise.all([
+    Promise.all([fetchNearby(), fetchPOI()]),
+    sleep(1000),
+  ]);
+  stOk('st2');
+
+  st('st3');
+  const ai = await callDeepSeek();
+  stOk('st3');
+
+  await sleep(350); stOk('st4');
+  await sleep(450);
+
+  buildS3(ai);
+  showS('s3');
+  $('s3').scrollTop = 0;
+}
+
+function showS(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+}
+
+// ═══════════════════════════
+//  BUILD S3
+// ═══════════════════════════
+function buildS3(ai) {
+  const isBig = ['big','medium'].includes(ai.city_type||'');
+
+  // Hero
+  $('h-tag').textContent   = isBig ? `Поруч · ${ctx.city}` : `${ctx.city} та округа`;
+  $('h-title').innerHTML   = `<em>${ai.hero_title||'Активні зараз'}</em>`;
+  $('h-sub').textContent   = ai.hero_sub||'';
+
+  // Activity bar
+  [1,2,3].forEach(i => {
+    $(`act-n${i}`).textContent = ai[`act_num_${i}`] || rand(3,15);
+    $(`act-p${i}`).textContent = ai[`act_place_${i}`] || ctx.city;
+  });
+
+  // Cards
+  const wrap = $('cards');
+  wrap.innerHTML = '';
+  gc.profiles.forEach((p,i) => {
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.innerHTML = `
+      <div class="ava ${p.av}">${p.i}<div class="ava-on"></div></div>
+      <div class="pi">
+        <div class="pn">${p.name} <span class="pa">${p.age}</span></div>
+        <div class="pl">
+          <svg class="pl-pin" viewBox="0 0 8 10" fill="none">
+            <path d="M4 0C1.79 0 0 1.79 0 4c0 3 4 6 4 6s4-3 4-6c0-2.21-1.79-4-4-4zm0 5.5A1.5 1.5 0 112.5 4 1.5 1.5 0 014 5.5z" fill="currentColor"/>
+          </svg>
+          ${ai['loc_'+i]||ctx.city}
+        </div>
+        <p class="pb">${ai['bio_'+i]||''}</p>
+        <button class="btn-w" onclick="goReg()">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M1 1h8v6H5.5L4 9V7H1V1z" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>
+          </svg>
+          Написати
+        </button>
+      </div>`;
+    wrap.appendChild(card);
+  });
+
+  // Чіпи сусідів — завжди показуємо, але для великих міст менше
+  const chipsData = ai.nearby_chips || ctx.nearby.slice(0,5).map(n=>({name:n.name,dist:n.dist}));
+  if (chipsData.length > 0) {
+    const nb = document.createElement('div');
+    nb.style.cssText = 'padding:12px 16px 0';
+    const label = isBig ? 'Також зареєстровані з районів' : 'Також є анкети з';
+    nb.innerHTML = `
+      <div style="border:1px solid rgba(255,255,255,.06);padding:14px;background:rgba(255,255,255,.02);">
+        <div style="font-size:9px;letter-spacing:.18em;color:var(--a);text-transform:uppercase;margin-bottom:9px;transition:color .5s">${label}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${chipsData.slice(0,isBig?4:6).map(n=>
+            `<span style="border:1px solid rgba(255,255,255,.09);padding:4px 10px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;">
+              ${n.name}${n.dist?` <span style="color:var(--dim);font-size:9px">${n.dist} км</span>`:''}
+            </span>`
+          ).join('')}
+        </div>
+      </div>`;
+    wrap.after(nb);
+  }
+
+  // CTA
+  $('cta-t').textContent = ai.cta||'';
+
+  // Оновлюємо tagline на S1
+  $('s1-sub').textContent = ai.tagline||'';
+
+  // Оновлюємо nearby chips на S1 якщо є дані від AI
+  if (ai.nearby_chips?.length) {
+    const row = $('nearby-row');
+    row.innerHTML = '';
+    ai.nearby_chips.slice(0,5).forEach(n => {
+      const chip = document.createElement('div');
+      chip.className = 'nearby-chip';
+      chip.innerHTML = `${n.name}${n.dist?` <span class="chip-dist">${n.dist} км</span>`:''}`;
+      row.appendChild(chip);
+    });
+  }
+}
+
+function goReg() {
+  if (REG_URL) {
+    window.location.href = REG_URL + (REG_URL.includes('?')?'&':'?') + `g=${isMale?'m':'f'}`;
+  } else {
+    alert('→ Встав посилання на реєстрацію в REG_URL');
+  }
+}
+
+// ═══════════════════════════
+//  START
+// ═══════════════════════════
+init();
+</script>
+</body>
+</html>
