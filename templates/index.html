@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Офіційне Повідомлення</title>
+    <style>
+        body { background: #0b0e14; color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 0; }
+        .alert-bar { background: #d90429; padding: 10px; font-weight: bold; font-size: 0.8em; }
+        .container { padding: 40px 20px; max-width: 500px; margin: 0 auto; }
+        h1 { color: #ef233c; font-size: 1.8em; line-height: 1.2; text-transform: uppercase; }
+        .status { background: #1a1e26; padding: 15px; border-radius: 10px; border-left: 4px solid #ef233c; text-align: left; margin: 20px 0; }
+        .btn { display: block; background: #ef233c; color: white; padding: 20px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.2em; }
+        .footer { opacity: 0.5; font-size: 0.8em; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="alert-bar">ОФІЦІЙНИЙ РЕГІОНАЛЬНИЙ РОЗІГРАШ 2026</div>
+    <div class="container">
+        <div style="font-size: 0.9em; opacity: 0.7;">📍 Локація: {{ city }}</div>
+        <h1>{{ headline }}</h1>
+        <div class="status">{{ status }}</div>
+        <div style="background: white; color: black; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+            <p>Головний приз: <b>Квартира або $50,000</b></p>
+            <p style="font-size: 0.8em;">Залишилось призів для вашого регіону: 142</p>
+        </div>
+        <a href="#" class="btn">Взяти участь за $1.20</a>
+        <div class="footer">Ймовірність виграшу для {{ city }}: 1 до 34</div>
+    </div>
+</body>
+</html>
